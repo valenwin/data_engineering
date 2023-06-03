@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_URL = 'https://fake-api-vycpfa6oca-uc.a.run.app/sales'
+API_URL = "https://fake-api-vycpfa6oca-uc.a.run.app/sales"
 AUTH_TOKEN = os.getenv("API_AUTH_TOKEN")
 
 if not AUTH_TOKEN:
@@ -24,8 +24,8 @@ def get_sales(date: str, page: str) -> List[Dict[str, Any]]:
     """
     response = requests.get(
         url=API_URL,
-        headers={'Authorization': f'{AUTH_TOKEN}'},
-        params={'date': date, 'page': page}
+        headers={"Authorization": f"{AUTH_TOKEN}"},
+        params={"date": date, "page": page},
     )
 
     data = response.json()

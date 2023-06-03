@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 
 
 def save_to_disk(
-        json_content: List[Dict[str, Any]], date: str, page: str, path: str
+    json_content: List[Dict[str, Any]], date: str, page: str, path: str
 ) -> None:
     if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)

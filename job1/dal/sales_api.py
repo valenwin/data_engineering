@@ -28,6 +28,7 @@ def get_sales(date: str, page: str) -> List[Dict[str, Any]]:
         params={"date": date, "page": page},
     )
 
-    data = response.json()
-
-    return data
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print("Error API call:", response.status_code)

@@ -24,20 +24,22 @@ def main() -> flask_typing.ResponseReturnValue:
     Proposed POST body in JSON:
     {
       "date": "2022-08-09",
-      "page": "1"
+      "page": "1",
+      "raw_dir": "file_storage/raw/sales/"
     }
     """
     input_data: dict = request.json
     date = input_data.get("date")
-    page = input_data.get("page")
-    raw_dir = f"{os.getenv('BASE_DIR')}/{date}"
+    page = input_data.get("page", "1")
+    dir_path = input_data.get("raw_dir", "file_storage/raw/sales/")
+    raw_dir_path = f"{dir_path}{date}"
 
     if not date:
         return {
             "message": "date parameter missed",
         }, 400
 
-    save_sales_to_local_disk(date=date, page=page, raw_dir=raw_dir)
+    save_sales_to_local_disk(date=date, page=page, raw_dir=raw_dir_path)
 
     return {
         "message": "Data retrieved successfully from API",

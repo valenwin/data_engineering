@@ -2,8 +2,6 @@
 This file contains the controller that accepts command via HTTP
 and trigger business logic layer
 """
-import os
-
 from dotenv import load_dotenv
 from flask import Flask, request
 from flask import typing as flask_typing

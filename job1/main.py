@@ -33,9 +33,8 @@ def main() -> flask_typing.ResponseReturnValue:
     page = input_data.get("page", "1")
     dir_path = input_data.get("raw_dir", "file_storage/raw/sales/")
 
-    current_dir_path = os.getcwd()
-    parent_dir_path = os.path.dirname(current_dir_path)
-    raw_dir_path = f"{parent_dir_path}/{dir_path}{date}"
+    base_dir_path = os.getenv("BASE_DIR")
+    raw_dir_path = os.path.join(base_dir_path, dir_path, date)
 
     if not date:
         return {

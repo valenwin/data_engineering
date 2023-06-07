@@ -9,6 +9,7 @@ from flask import Flask, request
 from flask import typing as flask_typing
 
 from job2.dal import file_conversion
+from job2.dal import date_validation
 
 app = Flask(__name__)
 
@@ -26,19 +27,47 @@ def main() -> flask_typing.ResponseReturnValue:
     }
     """
     input_data: dict = request.json
-    raw_dir = input_data.get("raw_dir", "file_storage/raw/sales/2022-08-09")
-    stg_dir = input_data.get("stg_dir", "file_storage/stg/sales/2022-08-09")
+    raw_dir: str = input_data.get("raw_dir")
+    stg_dir: str = input_data.get("stg_dir")
 
-    raw_dir_path = os.path.join(BASE_DIR_PATH, raw_dir)
-    stg_dir_path = os.path.join(BASE_DIR_PATH, stg_dir)
-    json_file = os.path.join(raw_dir_path, "sales_2022-08-09_1.json")
-
-    file_conversion.convert_json_to_avro(json_file=json_file, avro_path=stg_dir_path)
-
-    if not raw_dir:
+    if not raw_dir or not stg_dir:
         return {
-            "message": "raw_dir parameter missed",
+            "message": "raw_dir or stg_dir parameter is missing",
         }, 400
+
+    raw_date = raw_dir.split("/")[-1]
+    stg_date = stg_dir.split("/")[-1]
+
+    if not date_validation.validate_date_format(raw_date, "%Y-%m-%d"):
+        return {
+            "message": "Invalid date format for raw_dir",
+        }, 400
+
+    if not date_validation.validate_date_format(stg_date, "%Y-%m-%d"):
+        return {
+            "message": "Invalid date format for stg_dir",
+        }, 400
+
+    if raw_date != stg_date:
+        return {
+            "message": "raw_dir and stg_dir dates must be the same",
+        }, 400
+
+    raw_dir_path = os.path.join(
+        BASE_DIR_PATH,
+        raw_dir or "file_storage/raw/sales/2022-08-09"
+    )
+    stg_dir_path = os.path.join(
+        BASE_DIR_PATH,
+        stg_dir or "file_storage/stg/sales/2022-08-09"
+    )
+    json_file = os.path.join(raw_dir_path, f"sales_{raw_date}_1.json")
+
+    file_conversion.convert_json_to_avro(
+        json_file=json_file,
+        avro_path=stg_dir_path,
+        date=raw_date
+    )
 
     return {
         "message": "File transfer from json format to avro successfully.",

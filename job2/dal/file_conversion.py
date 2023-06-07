@@ -3,10 +3,8 @@ import os
 
 import fastavro
 
-from job2 import main
 
-
-def convert_json_to_avro(json_file, avro_path):
+def convert_json_to_avro(json_file, avro_path, date):
     if not os.path.exists(json_file):
         print("JSON file does not exist")
         return
@@ -17,7 +15,7 @@ def convert_json_to_avro(json_file, avro_path):
     if not os.path.exists(avro_path):
         os.makedirs(avro_path, exist_ok=True)
 
-    avro_file = f"{avro_path}/sales_2022-08-09_1.avro"
+    avro_file = f"{avro_path}/sales_{date}_1.avro"
 
     # Define the Avro schema
     schema = {

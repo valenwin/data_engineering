@@ -2,6 +2,8 @@
 This file contains the controller that accepts command via HTTP
 and trigger business logic layer
 """
+import os
+
 from dotenv import load_dotenv
 from flask import Flask, request
 from flask import typing as flask_typing
@@ -30,7 +32,10 @@ def main() -> flask_typing.ResponseReturnValue:
     date = input_data.get("date")
     page = input_data.get("page", "1")
     dir_path = input_data.get("raw_dir", "file_storage/raw/sales/")
-    raw_dir_path = f"{dir_path}{date}"
+
+    current_dir_path = os.getcwd()
+    parent_dir_path = os.path.dirname(current_dir_path)
+    raw_dir_path = f"{parent_dir_path}/{dir_path}{date}"
 
     if not date:
         return {

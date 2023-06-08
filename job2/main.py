@@ -9,7 +9,7 @@ from flask import Flask, request
 from flask import typing as flask_typing
 
 from job2.dal import file_conversion
-from job2.dal import date_validation
+from validation import date_validation
 
 app = Flask(__name__)
 

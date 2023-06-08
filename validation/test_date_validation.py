@@ -1,6 +1,6 @@
 import unittest
 
-from job2.dal.date_validation import validate_date_format
+from validation.date_validation import validate_date_format
 
 
 class DateFormatValidationTests(unittest.TestCase):

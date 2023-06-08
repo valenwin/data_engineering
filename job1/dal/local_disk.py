@@ -9,7 +9,8 @@ def save_to_disk(
     if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)
 
-    file_path = f"{path}/sales_{date}.json"
+    file_name = f"sales_{date}.json"
+    file_path = os.path.join(path, file_name)
 
     with open(file_path, "w") as file:
         json.dump(json_content, file, indent=4)

@@ -15,7 +15,8 @@ def convert_json_to_avro(json_file, avro_path, date):
     if not os.path.exists(avro_path):
         os.makedirs(avro_path, exist_ok=True)
 
-    avro_file = f"{avro_path}/sales_{date}_1.avro"
+    avro_file_name = f"sales_{date}.avro"
+    avro_file_path = os.path.join(avro_path, avro_file_name)
 
     # Define the Avro schema
     schema = {
@@ -30,7 +31,7 @@ def convert_json_to_avro(json_file, avro_path, date):
     }
 
     # Write JSON data to Avro file
-    with open(avro_file, 'wb') as f:
+    with open(avro_file_path, 'wb') as f:
         fastavro.writer(f, schema, json_data)
 
-    print(f"JSON file converted to Avro: {avro_file}")
+    print(f"JSON file converted to Avro: {avro_file_path}")

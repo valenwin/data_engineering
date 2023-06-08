@@ -61,7 +61,7 @@ def main() -> flask_typing.ResponseReturnValue:
         BASE_DIR_PATH,
         stg_dir or "file_storage/stg/sales/2022-08-09"
     )
-    json_file = os.path.join(raw_dir_path, f"sales_{raw_date}_1.json")
+    json_file = os.path.join(raw_dir_path, f"sales_{raw_date}.json")
 
     file_conversion.convert_json_to_avro(
         json_file=json_file,

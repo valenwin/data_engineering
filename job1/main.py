@@ -30,7 +30,6 @@ def main() -> flask_typing.ResponseReturnValue:
     """
     input_data: dict = request.json
     date = input_data.get("date")
-    page = input_data.get("page", "1")
     dir_path = input_data.get("raw_dir", "file_storage/raw/sales/")
 
     base_dir_path = os.getenv("BASE_DIR")
@@ -41,7 +40,7 @@ def main() -> flask_typing.ResponseReturnValue:
             "message": "date parameter missed",
         }, 400
 
-    save_sales_to_local_disk(date=date, page=page, raw_dir=raw_dir_path)
+    save_sales_to_local_disk(date=date, raw_dir=raw_dir_path)
 
     return {
         "message": "Data retrieved successfully from API",

@@ -14,21 +14,49 @@ if not AUTH_TOKEN:
     print("AUTH_TOKEN environment variable must be set")
 
 
-def get_sales(date: str, page: str) -> List[Dict[str, Any]]:
+# def get_sales(date: str, page: str) -> List[Dict[str, Any]]:
+#     """
+#     Get data from sales API for specified date.
+#
+#     :param page: data retrieve the data from
+#     :param date: data retrieve the data from
+#     :return: list of records
+#     """
+#     response = requests.get(
+#         url=API_URL,
+#         headers={"Authorization": f"{AUTH_TOKEN}"},
+#         params={"date": date, "page": page},
+#     )
+#
+#     if response.status_code == 200:
+#         return response.json()
+#     else:
+#         print("Error API call:", response.status_code)
+
+
+def get_sales(date: str) -> List[Dict[str, Any]]:
     """
     Get data from sales API for specified date.
 
-    :param page: data retrieve the data from
-    :param date: data retrieve the data from
-    :return: list of records
+    :param date: Date to retrieve the data from
+    :return: List of records
     """
-    response = requests.get(
-        url=API_URL,
-        headers={"Authorization": f"{AUTH_TOKEN}"},
-        params={"date": date, "page": page},
-    )
+    page = 1
+    all_records = []
 
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print("Error API call:", response.status_code)
+    while True:
+        response = requests.get(
+            url=API_URL,
+            headers={"Authorization": f"{AUTH_TOKEN}"},
+            params={"date": date, "page": str(page)},
+        )
+
+        if response.status_code == 200:
+            records = response.json()
+            all_records.extend(records)
+            page += 1
+        else:
+            print("Error API call:", response.status_code)
+            break
+
+    return all_records

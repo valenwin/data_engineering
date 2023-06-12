@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from flask import Flask, request
 from flask import typing as flask_typing
 
-from job2.dal import file_conversion
+from job2.bll import save_file
 from validation import date_validation
 
 app = Flask(__name__)
@@ -63,7 +63,7 @@ def main() -> flask_typing.ResponseReturnValue:
     )
     json_file = os.path.join(raw_dir_path, f"sales_{raw_date}.json")
 
-    file_conversion.convert_json_to_avro(
+    save_file.save_sales_to_local_disk(
         json_file=json_file,
         avro_path=stg_dir_path,
         date=raw_date

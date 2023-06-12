@@ -4,7 +4,21 @@ import os
 import fastavro
 
 
-def convert_json_to_avro(json_file, avro_path, date):
+def convert_json_to_avro(json_file: str, avro_path: str, date: str) -> None:
+    """Converts a JSON file to Avro format.
+
+        Args:
+            json_file (str): Path to the JSON file.
+            avro_path (str): Path to the directory where the Avro file will be saved.
+            date (str): Date string used in the Avro file name.
+
+        Returns:
+            None: The function does not return any value.
+
+        Raises:
+            FileNotFoundError: If the JSON file does not exist.
+
+    """
     if not os.path.exists(json_file):
         print("JSON file does not exist")
         return

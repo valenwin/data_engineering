@@ -8,5 +8,3 @@ def save_sales_to_local_disk(date: str, raw_dir: str) -> None:
     local_disk.save_to_disk(
         json_content=json_content, date=date, path=raw_dir
     )
-
-    print("\tI'm in get_sales(...) function!")

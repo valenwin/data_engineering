@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_URL = "https://fake-api-vycpfa6oca-uc.a.run.app/sales"
-AUTH_TOKEN = os.getenv("API_AUTH_TOKEN")
+AUTH_TOKEN = os.getenv("AUTH_TOKEN")
 
 if not AUTH_TOKEN:
     print("AUTH_TOKEN environment variable must be set")

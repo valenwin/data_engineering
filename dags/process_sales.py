@@ -44,7 +44,7 @@ with DAG(
         auth_token = Variable.get("AUTH_TOKEN")
 
         if not auth_token:
-            print("AUTH_TOKEN environment variable must be set")
+            raise ValueError("AUTH_TOKEN environment variable must be set")
 
         while True:
             response = requests.get(
@@ -70,8 +70,7 @@ with DAG(
         path = os.path.join(base_dir_path, raw_dir, date)
         print(path)
 
-        if not os.path.exists(path):
-            os.makedirs(path, exist_ok=True)
+        os.makedirs(path, exist_ok=True)
 
         task_instance = kwargs["ti"]
         json_content = task_instance.xcom_pull(key="json_data")
@@ -139,14 +138,8 @@ with DAG(
         raw_dir: str = f"file_storage/raw/sales/{raw_date}"
         stg_dir: str = f"file_storage/stg/sales/{raw_date}"
 
-        raw_dir_path = os.path.join(
-            base_dir_path,
-            raw_dir or f"file_storage/raw/sales/{raw_date}"
-        )
-        stg_dir_path = os.path.join(
-            base_dir_path,
-            stg_dir or f"file_storage/stg/sales/{raw_date}"
-        )
+        raw_dir_path = os.path.join(base_dir_path, raw_dir)
+        stg_dir_path = os.path.join(base_dir_path, stg_dir)
         json_file = os.path.join(raw_dir_path, f"sales_{raw_date}.json")
 
         save_sales_to_local_disk(

@@ -9,13 +9,12 @@ import pandas as pd
 from airflow import DAG
 from airflow.models import Variable
 from airflow.operators.python import PythonOperator
-from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
+from airflow.utils.task_group import TaskGroup
 
 start_date = datetime(2022, 8, 9)
 end_date = datetime(2022, 8, 11)
-date_range = pd.date_range(start=start_date, end=end_date, freq="D")
-raw_dir = "file_storage/raw/sales/"
+RAW_DIR = "file_storage/raw/sales/"
 API_URL = "https://fake-api-vycpfa6oca-uc.a.run.app/sales"
 
 default_args = {
@@ -31,6 +30,9 @@ with DAG(
         schedule_interval="0 1 * * *",  # Every day at 1 AM UTC
         max_active_runs=1,
 ) as dag:
+    date_range = pd.date_range(start=start_date, end=end_date, freq="D")
+
+
     def get_sales(date: str, **kwargs) -> List[Dict[str, Any]]:
         """
         Get data from sales API for specified date.
@@ -67,7 +69,7 @@ with DAG(
 
     def save_to_disk(date: str, **kwargs) -> None:
         base_dir_path = os.path.abspath(os.path.dirname(__file__))
-        path = os.path.join(base_dir_path, raw_dir, date)
+        path = os.path.join(base_dir_path, RAW_DIR, date)
         print(path)
 
         os.makedirs(path, exist_ok=True)
@@ -81,11 +83,6 @@ with DAG(
         with open(file_path, "w") as file:
             json.dump(json_content, file, indent=4)
 
-
-    success_task = EmptyOperator(
-        task_id="success",
-        dag=dag,
-    )
 
     def read_json_file(json_file: str) -> Dict:
         if not os.path.exists(json_file):
@@ -153,26 +150,34 @@ with DAG(
         }, 201
 
 
-    for date in date_range:
-        extract_data_task = PythonOperator(
-            task_id=f"extract_data_from_api_{date.strftime('%Y-%m-%d')}",
-            python_callable=get_sales,
-            op_kwargs={"date": date.strftime("%Y-%m-%d")},
-            provide_context=True,
-        )
+    with TaskGroup("process_sales_group") as process_sales_group:
+        for date in date_range:
+            extract_data_task = PythonOperator(
+                task_id=f"extract_data_from_api_{date.strftime('%Y-%m-%d')}",
+                python_callable=get_sales,
+                op_kwargs={"date": date.strftime("%Y-%m-%d")},
+                provide_context=True,
+            )
 
-        save_data = PythonOperator(
-            task_id=f"save_data_from_api_{date.strftime('%Y-%m-%d')}",
-            python_callable=save_to_disk,
-            op_kwargs={"date": date.strftime("%Y-%m-%d")},
-            provide_context=True,
-        )
+            save_data = PythonOperator(
+                task_id=f"save_data_from_api_{date.strftime('%Y-%m-%d')}",
+                python_callable=save_to_disk,
+                op_kwargs={"date": date.strftime("%Y-%m-%d")},
+                provide_context=True,
+            )
 
-        convert_to_avro = PythonOperator(
-            task_id=f"convert_to_avro_{date.strftime('%Y-%m-%d')}",
-            python_callable=transfer_data_to_avro,
-            op_kwargs={"raw_date": date.strftime("%Y-%m-%d")},
-            provide_context=True,
-        )
+            convert_to_avro = PythonOperator(
+                task_id=f"convert_to_avro_{date.strftime('%Y-%m-%d')}",
+                python_callable=transfer_data_to_avro,
+                op_kwargs={"raw_date": date.strftime("%Y-%m-%d")},
+                provide_context=True,
+            )
 
-        extract_data_task >> success_task >> save_data >> convert_to_avro
+            extract_data_task >> save_data >> convert_to_avro
+
+    success_task = PythonOperator(
+        task_id="success",
+        python_callable=lambda: print("Success"),
+    )
+
+    process_sales_group >> success_task

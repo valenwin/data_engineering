@@ -15,7 +15,10 @@ cd data_engineering
 make all
 ```
 
-2. Connect Airflow docker container with Flask server using address of your local machine
+2. Add AUTH_TOKEN value to Admin/Variables
+
+
+Connect Airflow docker container with Flask server using address of your local machine
 - task_id='extract_data_from_api'
 ```	
 create connection in Admin/Connections in Airflow with 
@@ -33,7 +36,7 @@ Host=your local machine address,
 Port=8082
 ```
 
-3. Before you start your Flask server, run it on your local machine address
+Before you start your Flask server, run it on your local machine address
 ```	
 app.run(debug=True, host="your local machine address", port=8081)
 ```

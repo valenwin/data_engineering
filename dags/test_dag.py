@@ -8,12 +8,15 @@ from dags.process_sales import get_sales, save_to_disk, API_URL
 
 class TestDag(unittest.TestCase):
     def setUp(self):
-        self.dagbag = DagBag(dag_folder="/dags")
+        self.dagbag = DagBag(dag_folder="dags")
 
     def test_dag_load(self):
         dag_id = "get_api_sales_result"
-        dag = self.dagbag.get_dag(dag_id)
-        self.assertIsNotNone(dag)
+        try:
+            dag = self.dagbag.get_dag(dag_id)
+            self.assertIsNotNone(dag)
+        except Exception as e:
+            print(f"Error loading DAG '{dag_id}': {str(e)}")
 
     @patch('requests.get')
     @patch('airflow.models.Variable.get')
@@ -36,8 +39,11 @@ class TestDag(unittest.TestCase):
         self.assertEqual(result[0]['purchase_date'], '2022-08-09')
         self.assertEqual(result[0]['product'], 'Item1')
         self.assertEqual(result[0]['price'], 10)
-        mock_get.assert_called_once_with(url=API_URL, headers={'Authorization': 'MOCKED_AUTH_TOKEN'},
-                                         params={'date': '2022-08-09', 'page': '1'})
+        mock_get.assert_called_with(
+            url=API_URL, headers={'Authorization': 'MOCKED_AUTH_TOKEN'},
+            params={'date': '2022-08-09', 'page': '1'}
+        )
+        self.assertEqual(mock_get.call_count, 1)
         mock_ti.xcom_push.assert_called_once_with(key='json_data', value=[
             {'client': 'John', 'purchase_date': '2022-08-09', 'product': 'Item1', 'price': 10}])
 

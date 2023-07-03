@@ -12,8 +12,9 @@ from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 from airflow.utils.task_group import TaskGroup
 
-start_date = datetime(2022, 8, 9)
-end_date = datetime(2022, 8, 11)
+start_date = datetime.strptime("2022-08-09", "%Y-%m-%d")
+end_date = datetime.strptime("2022-08-11", "%Y-%m-%d")
+date_range = pd.date_range(start=start_date, end=end_date, freq="D")
 RAW_DIR = "file_storage/raw/sales/"
 API_URL = "https://fake-api-vycpfa6oca-uc.a.run.app/sales"
 
@@ -30,9 +31,6 @@ with DAG(
         schedule_interval="0 1 * * *",  # Every day at 1 AM UTC
         max_active_runs=1,
 ) as dag:
-    date_range = pd.date_range(start=start_date, end=end_date, freq="D")
-
-
     def get_sales(date: str, **kwargs) -> List[Dict[str, Any]]:
         """
         Get data from sales API for specified date.

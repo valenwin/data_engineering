@@ -14,8 +14,11 @@ cd data_engineering
 ```	
 make all
 ```
-
-2. Add AUTH_TOKEN value to Admin/Variables
+2. Run AirFlow locally
+```	
+docker compose up
+```
+3. Add AUTH_TOKEN value to Admin/Variables
 
 
 Connect Airflow docker container with Flask server using address of your local machine

@@ -2,6 +2,7 @@ from datetime import datetime
 from airflow import DAG
 from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
 
 dag = DAG(
     dag_id="process_sales",
@@ -19,12 +20,22 @@ extract_data_from_api = SimpleHttpOperator(
     headers={"Content-Type": "application/json"},
     data="""
     {
-        "date": "{{ execution_date.strftime('%Y-%m-%d') }}",
-        "raw_dir": "file_storage/raw/sales/year={{ execution_date.year }}/month={{ execution_date.month }}/day={{ execution_date.day }}/"
+        "date": "2022-08-09",
+        "raw_dir": "dags/file_storage/raw/sales/"
     }
     """,
     response_check=lambda response: response.status_code == 201,
     dag=dag,
+)
+
+BUCKET_NAME = "salesbucketgetdata"
+UPLOAD_FILE_PATH = "dags/file_storage/raw/sales/2022-08-09/sales_2022-08-09.json"
+
+upload_file_to_gcs = LocalFilesystemToGCSOperator(
+    task_id="upload_file_to_gcs",
+    src=UPLOAD_FILE_PATH,
+    dst="src1/sales/v1/year=2022/month=08/day=09/",
+    bucket=BUCKET_NAME,
 )
 
 success_task = PythonOperator(
@@ -32,4 +43,4 @@ success_task = PythonOperator(
     python_callable=lambda: print("Success"),
 )
 
-extract_data_from_api >> success_task
+extract_data_from_api >> upload_file_to_gcs >> success_task

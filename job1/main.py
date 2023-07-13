@@ -53,5 +53,4 @@ def main() -> flask_typing.ResponseReturnValue:
 
 
 if __name__ == "__main__":
-    # app.run(debug=True, host="localhost", port=8081)
     app.run(debug=True, host="192.168.0.101", port=8081)
